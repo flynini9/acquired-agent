@@ -1,0 +1,21 @@
+/* Only the new short task alternative is hidden outside mobile. */
+.station-task-mobile{display:none}
+@media(max-width:768px){
+ .station-interaction .station-task-desktop{display:none}
+ .station-interaction .station-task-mobile{display:inline}
+ .walk-view:has(.station-workspace) .station-nav{margin:4px 0 6px;padding-bottom:4px}
+ .station-workspace{gap:6px}
+ .station-workspace .station-hero{grid-template-columns:52px minmax(0,1fr);gap:2px 12px}
+ .acquired-shell .station-workspace h1{margin:4px 0}
+ .station-workspace .step-context summary{min-height:36px}
+ .walk-view .station-workspace .taste-item{padding:8px 10px}
+ .station-interaction .taste-item>.eyebrow{margin:0 0 4px;line-height:1.5}
+ .station-interaction .link-wrap{gap:0}
+ .station-interaction .play-link{padding:2px 0;line-height:1.5}
+ .station-interaction .link-wrap>small{line-height:1.4}
+ .station-interaction .rating-groups{margin:6px 0 0;gap:4px}
+ .station-interaction .rating-groups legend{margin-bottom:0}
+ .station-interaction .rating-groups fieldset>small{line-height:1.2;margin-top:0}
+ .station-interaction .taste-item>.skip-item{padding:6px 0;margin:0}
+ .station-interaction .walk-actions>.primary{margin-top:6px}
+}

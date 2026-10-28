@@ -1,0 +1,70 @@
+/* New alternative presentation is absent from desktop flow. Existing desktop
+ * nodes, copy and all original styles stay unchanged. */
+.mobile-polish-only{display:none}
+@media(max-width:768px){
+ .mobile-polish-only{display:block}
+ .acquired-shell .intake-review .mobile-polish-desktop,
+ .acquired-shell .mobile-review-secondary,
+ .station-interaction .swap-link .mobile-polish-desktop{display:none}
+
+ /* A single final confirmation: compact identities, optional preferences,
+  * one route-length control, and the existing build action. */
+ .intake-review{padding-top:18px;padding-bottom:24px}
+ .review-heading>h1{margin-bottom:14px}
+ .review-grid{grid-template-columns:1fr;gap:16px}
+ .review-summary>div{padding:7px 0}
+ .review-summary dt{margin-bottom:3px}
+ .review-summary .confirmed-identity{line-height:1.6;padding-right:76px}
+ .review-summary .confirmed-identity small{display:inline;margin-left:8px;font-size:11px}
+ .confirmed-identity+.confirmed-identity{margin-top:6px}
+ .intake-review .review-grid>div>.text-button{min-height:44px;padding:9px 0}
+ .review-settings .intent-list{border-left:0;padding-left:0;margin:0}
+ .review-settings .intent-list>.chips:empty{display:none}
+ .review-settings .mobile-preferences-title{font-size:13px;color:var(--ink);margin:0 0 4px}
+ .review-settings .add-intent{margin:0;padding:0;border-top:0}
+ .review-settings .add-intent>summary{min-height:44px;padding:10px 0}
+ .review-settings .mobile-preference-notes{margin:0;padding:0;border-top:0}
+ .mobile-preference-notes>summary{font-size:11px;min-height:36px;padding:7px 0}
+ .mobile-preference-notes>p{font-size:11px;line-height:1.65;margin:4px 0 12px}
+ .review-settings .intent-conflict{margin:12px 0}
+ .review-settings .manual-picked{margin-top:10px}
+ .review-settings .route-length{margin:14px 0 0}
+ .mobile-route-length>span{display:block;font-size:13px;margin-bottom:8px;color:var(--ink)}
+ .mobile-length-control{display:flex;align-items:center;justify-content:space-between;gap:8px;max-width:320px;border:1px solid #c5b0d6;border-radius:999px;background:#faf7ff;padding:4px}
+ .acquired-shell .mobile-length-control button{height:44px;min-width:44px;padding:0;font-size:22px;background:transparent;color:var(--accent);border:1px solid transparent}
+ .acquired-shell .mobile-length-control button:hover:not(:disabled){background:#e9dff2}
+ .mobile-length-control output{font-size:16px;color:var(--ink);text-align:center}
+ .mobile-route-length>small{font-size:11px;margin-top:7px;line-height:1.6}
+ .intake-review .review-actions{margin-top:16px;padding-top:14px;gap:8px;flex-direction:column;align-items:stretch}
+ .intake-review .review-actions>.primary{width:100%}
+
+ /* A small entry-spacing adjustment; keep v69's hero type and doorway. */
+ .acquired-shell:has(.intake){padding-top:10px}
+ .acquired-shell:has(.intake) .acquired-header{padding-bottom:10px}
+ .intake{padding-top:12px}
+ .intake-progress{margin-bottom:12px}
+ .intake-editor{margin-top:14px}
+ .intake-actions{margin-top:14px}
+ .threshold-scene{margin-top:10px}
+
+ /* Keep the score card intact. Group its following controls in a clear order. */
+ .station-interaction{display:flex;flex-direction:column;gap:0}
+ .station-interaction>.feedback{order:-1}
+ .station-interaction>.taste-list{order:0}
+ .walk-view .station-workspace .walk-actions{display:contents}
+ .station-interaction .walk-actions>.primary{order:1;width:100%;margin-top:12px}
+ .acquired-shell .station-interaction .swap-link{order:2;margin-top:4px;padding:8px 0;border-bottom:0;font-size:12px;min-height:44px}
+ .station-interaction .swap-link small{margin-top:1px;font-size:10px;line-height:1.5}
+ .station-interaction>.muted{order:3;margin:4px 0 0}
+ .station-interaction .walk-actions>.text-button{order:4;min-height:44px;padding:8px 0;font-size:11px;color:var(--dim)}
+ .station-interaction .walk-actions>.text-button:disabled{display:none}
+ .station-interaction>.reroute-proposal{order:5}
+
+ /* The footer link is our UI; use the existing trusted owner flag solely
+  * for presentation. This changes no authentication or authorization. */
+ .acquired-shell .acquired-footer{flex-direction:column;align-items:flex-start;gap:4px;margin-top:20px;padding:12px 0}
+ .acquired-shell .acquired-footer>details{width:100%;margin:0;padding:0;border-top:0}
+ .acquired-footer>details>summary{min-height:44px;line-height:1.6;padding:10px 0}
+ .acquired-shell .acquired-footer .owner-access:not(.is-owner){display:none}
+ .acquired-shell .acquired-footer .owner-access{font-size:10px;min-height:44px;padding:8px 0}
+}

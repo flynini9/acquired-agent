@@ -1,0 +1,118 @@
+/* Acquired · After hours. Ink, ice and a small note of chartreuse. */
+:root:has(.acquired-shell){color-scheme:dark;background:#101b23;color:#edf4f5}
+body:has(.acquired-shell){background:radial-gradient(ellipse at 5% 12%,#24434b55,transparent 46%),#101b23}
+.acquired-shell{--ink:#edf4f5;--dim:#a7bbc4;--muted:#a7bbc4;--line:#354b56;--paper:#172831;--accent:#d5f288;--lavender:#b6dce8;--surface:#192c35;--surface-hover:#223c46;isolation:isolate}
+.acquired-shell p,.acquired-shell small,.acquired-shell .muted{color:var(--dim)}
+.acquired-shell h1,.acquired-shell h2,.acquired-shell h3,.acquired-shell strong{color:var(--ink)}
+.acquired-shell h1 em{color:var(--accent)}
+.acquired-shell a{color:#d7ebee}
+.acquired-header{border-color:var(--line)}
+.acquired-shell .wordmark{color:var(--ink)}
+.wordmark span{color:var(--dim)}
+.acquired-shell .library-toggle{background:#1c303a;border-color:#45606d;color:var(--ink)}
+.acquired-shell .library-toggle:hover{background:#29444f}
+.acquired-shell button:focus-visible,.acquired-shell a:focus-visible,.acquired-shell input:focus-visible,.acquired-shell textarea:focus-visible,.acquired-shell select:focus-visible,.acquired-shell summary:focus-visible{outline-color:var(--accent)}
+.acquired-shell button:disabled{opacity:.48}
+.acquired-shell .primary{background:var(--accent);color:#14242c;border-color:var(--accent);box-shadow:0 5px 24px #d5f2880a}
+.acquired-shell .primary:hover:not(:disabled){background:#e4ffa4;border-color:#e4ffa4;transform:translateY(-1px)}
+.acquired-shell .secondary{background:#243d47;color:var(--ink);border:1px solid #45616e}
+.acquired-shell .secondary:hover:not(:disabled){background:#304e5b}
+.acquired-shell .text-button{color:#b6cad3}
+.acquired-shell .text-button:hover{color:var(--accent)}
+.acquired-shell .eyebrow{color:#afc7cf}
+.acquired-shell .spark{color:var(--accent)}
+/* An illuminated threshold, with quiet space around the typography. */
+.intake-art{background:radial-gradient(ellipse at 48% 56%,#5c949f14,transparent 65%)}
+.intake-art:before{background:linear-gradient(155deg,#5f9ba52b,#2749560f 55%,#d5f2880d);filter:blur(1px)}
+.intake-art .arch{border-color:#7eafbd66;background:linear-gradient(170deg,#81c4d017,transparent);box-shadow:inset 0 1px 0 #bde7f533}
+.intake-art .arch-one{border-color:#b5e3da91;box-shadow:inset 0 1px 0 #d4f2ec55,0 0 42px #78b4be0a}
+.intake-art .arch-two{border-color:#97c9d078;background:linear-gradient(150deg,#6aabb622,#1a35420d)}
+.intake-art .arch-three{border-color:#d5f28870;background:linear-gradient(140deg,#d5f28817,#598c9c0a)}
+.intake-art-caption>span,.intake-art-caption small,.intake-art .art-label{color:#9cb6c0}
+.intake-art-caption p{color:#e4f1f2}
+.intake-art-caption em{color:var(--accent)}
+.intake-art .arch-dot{background:#ecffc0;box-shadow:0 0 0 8px #d5f2880c,0 0 32px #d5f28870}
+.intake-progress{color:#8da6b3}
+.intake-progress span{border-color:#354b56}
+.intake-progress [aria-current]{color:var(--accent);border-color:var(--accent)}
+.sentence-field input,.sentence-field textarea,.route-length input,.add-intent select,.add-intent input{color:var(--ink);border-color:#56727e;background:transparent}
+.sentence-field input::placeholder,.sentence-field textarea::placeholder{color:#8fa8b5}
+.add-intent select option{background:var(--paper);color:var(--ink)}
+.route-length input[aria-invalid=true]{border-color:#ffbba3}
+.constraint-heard,.intent-list,.constraint-recap,.motivation-recap,.reroute-proposal,.narrative-echo{border-left-color:#8cbfc7}
+.acquired-shell .chip{border-color:#5b7783;color:#a5bbc5}
+.acquired-shell .chip.selected{background:#d5f28817;border-color:#a4c977;color:#e0f5b5}
+.acquired-shell .chip.selected small{color:#c2d2bf}
+.intent-conflict{background:#49372a;border:1px solid #8c6a48}
+.intent-conflict p,.intent-conflict small,.intent-pending{color:#f0cfad}
+.library-panel{background:#172a33;border-color:#3c5663;box-shadow:0 20px 65px #0002}
+.acquired-shell .library-item{border-color:#354b56;color:var(--ink)}
+.acquired-shell .library-item:hover{background:#203741}
+.feedback{background:#203a3d;color:#d9ece8;border:1px solid #3e6366}
+.feedback.error{background:#442e2b;color:#ffd3bd;border-color:#82534b}
+.save-state.failed{color:#ffbea8}
+/* Covers retain their own colours; the surrounding frame goes dark. */
+.work-artwork{background:#243e49}
+.artwork-paper{background:linear-gradient(145deg,#2b5360,#1c3343 70%)}
+.work-artwork[data-medium=artist] .artwork-paper{background:linear-gradient(140deg,#345865,#203341 70%)}
+.work-artwork[data-medium=book] .artwork-paper{background:linear-gradient(140deg,#485846,#233c40 70%)}
+.artwork-monogram{color:#e4f3edb5}
+.artwork-fallback-label{color:#c1d6dc}
+.acquired-shell .candidate-card{background:#192d36;border-color:#3a5563;box-shadow:0 10px 30px #0001}
+.acquired-shell .candidate-card:not(:disabled):hover{background:#233e49;border-color:#9cbd88}
+.candidate-card .candidate-copy>span{color:#b4ccd5}
+.candidate-card p,.candidate-card small{color:#b5c7cf}
+.route-facts>span{color:var(--accent)}
+.route-facts small{color:#b1c5cd}
+.destination-portrait{background:#20343f;border-color:#42606b;box-shadow:8px 18px 60px #0005}
+.destination-portrait figcaption span{color:#b1c8d2}
+.destination-portrait figcaption strong{color:#edf4f5}
+.portrait-stamp{background:var(--accent);border-color:var(--accent);color:#1b3038}
+.gallery-heading,.gallery-bottom,.poster-evidence{border-color:var(--line)}
+.gallery-heading>p,.poster-position{color:#afc8d0}
+.poster-position i{background:#45606b}
+.poster-position i:after{background:var(--accent)}
+.poster-frame{box-shadow:0 14px 30px #0004}
+.poster-medium{background:#12242eea;color:#e0edf1;border:1px solid #64828c75}
+.poster-reason,.work-creator{color:#b1c5ce}
+.poster-evidence summary{color:#d6e5ea}
+.poster-evidence summary>span,.gallery-agent-note>span{color:var(--accent)}
+.poster-evidence>p,.gallery-agent-note p{color:#b4ccd3}
+.poster-evidence .muted{color:#a7bbc4}
+.gallery-agent-note small{color:#afc8d0}
+.gallery-conditions .constraint-recap{background:#1c303b}
+.station-artwork{border-color:#2a434d;box-shadow:9px 16px 35px #0005}
+.station-description{color:#b5c9d1}
+.station-story .agent-note,.agent-note{background:#1c323e;border:1px solid #3b5665;box-shadow:none}
+.station-story .agent-note p,.agent-note p{color:#e0ecef}
+.station-story .agent-note>div>span,.agent-note>div>span{color:#d5f288}
+.walk-view .taste-item{background:#182c36;border-color:#3c5663;box-shadow:0 12px 30px #0001}
+.play-link{color:#dcecf1;border-color:#8eaf78}
+.play-link:hover{color:var(--accent)}
+.acquired-shell .rating-options button{background:#203640;color:#c7d9df;border-color:#56717e}
+.acquired-shell .rating-options button:hover:not(:disabled){background:#344e57;border-color:#b9d78c}
+.acquired-shell .rating-options button.selected{background:var(--accent);color:#162932;border-color:var(--accent)}
+.station-nav:before{background:#45606d}
+.station-nav button span{background:#1d333e;border-color:#526c79}
+.station-nav button[aria-current] span{background:var(--accent);color:#162932;border-color:var(--accent);box-shadow:0 0 0 6px #d5f28812}
+.station-nav button:disabled span{color:#9bb2be}
+.acquired-shell .swap-link{color:#d5e8ee;border-color:var(--line)}
+.arrival-mark,.footprints li>span{color:var(--accent)}
+.footprints li{border-color:var(--line)}
+.reflection textarea{background:#192e39;border-color:#506b78;color:var(--ink)}
+/* Waiting, warnings and saved-state screens use the same visual language. */
+.orbit-scene svg{filter:drop-shadow(0 10px 15px #0002)}
+.orbit-base{stroke:#4c6c7c}
+.orbit-trail{stroke:var(--accent);filter:drop-shadow(0 0 6px #d5f28865)}
+.orbit-stars{fill:#1a303c;stroke:#a4c7d1}
+.orbit-word{color:#a5c0cc}
+.live-dot{background:var(--accent)}
+.acquired-footer,.acquired-footer a{color:#a5bbc6;border-color:var(--line)}
+.acquired-shell details,.acquired-shell .route-ribbon>div{border-color:var(--line)}
+.route-ribbon>div:before{background:var(--accent);border-color:#101b23}
+.route-ribbon span{color:var(--accent)}
+@media(max-width:700px){.intake-art .arch{box-shadow:none}.destination-portrait{box-shadow:5px 12px 30px #0004}}
+.acquired-shell input[type=checkbox]{accent-color:#d5f288}
+.acquired-shell .intake-copy .intent-list p,.acquired-shell .intake-copy .constraint-heard p{color:#bfd0d8}
+.acquired-shell .rating-options button.selected:hover:not(:disabled){background:#e4ffa4;color:#162932;border-color:#e4ffa4}
+.intake h1 em{white-space:nowrap}
