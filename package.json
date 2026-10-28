@@ -1,5 +1,5 @@
 {
-  "name": "site-creator-vinext-starter",
+  "name": "acquired-agent",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -67,5 +67,6 @@
       "sharp": "0.35.4"
     }
   },
-  "packageManager": "pnpm@11.25.0"
+  "packageManager": "pnpm@11.25.0",
+  "license": "AGPL-3.0-only"
 }
