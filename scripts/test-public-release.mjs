@@ -1,0 +1,158 @@
+// Real SQLite + shipped Drizzle queries; two visitors and the legacy owner.
+// No real Qloo calls, production credentials or browser identity forgery.
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {drizzle} from 'drizzle-orm/sqlite-proxy';
+import {readFile,mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+import path from 'node:path';
+import ts from 'typescript';
+import {guestToken,visitorForRequest,GUEST_COOKIE} from '../lib/acquired/guest-identity.ts';
+import {visitorFromHeaders,limitedJson,sameOrigin} from '../lib/acquired/public-access.ts';
+import {reserveQloo,reserveAction,reserveSession,reserveBuild,PublicBudgetError,PUBLIC_LIMITS} from '../lib/acquired/public-budget.ts';
+import {englishAvoidance} from '../lib/acquired/english-intent.ts';
+import {newTrace,traceStorage,trackedFetch} from '../lib/acquired/telemetry.ts';
+const root=fileURLToPath(new URL('../',import.meta.url)),dir=await mkdtemp(path.join(root,'node_modules/.public-release-'));
+const sql=new DatabaseSync(':memory:');let checks=0;
+const check=(value,message)=>{assert.ok(value,message);checks++};
+for(const file of ['0000_omniscient_robin_chapel.sql','0001_clean_white_tiger.sql','0002_oval_thing.sql'])sql.exec(await readFile(path.join(root,'drizzle',file),'utf8'));
+const db=drizzle(async(query,params,method)=>{
+ const statement=sql.prepare(query);if(method==='run'){statement.run(...params);return {rows:[]};}
+ if(method==='get'){const row=statement.get(...params);return {rows:row?Object.values(row):undefined};}
+ return {rows:statement.all(...params).map(row=>Object.values(row))};
+});
+const d1={prepare(query){const run=params=>({
+ async first(){return sql.prepare(query).get(...params)??null;},
+ async all(){return {results:sql.prepare(query).all(...params)};},
+ async run(){return sql.prepare(query).run(...params);},
+ bind(...params){return run(params);},
+ });return run([]);}};
+globalThis.__publicDb=db;globalThis.__publicEnv={DB:d1,QLOO_API_KEY:'worthless-public-test-key',ACQUIRED_OWNER_EMAIL:'owner@example.test',ACQUIRED_GUEST_SECRET:'worthless-test-guest-secret-32-bytes-minimum'};
+async function compile(relative,extra=''){
+ let source=await readFile(path.join(root,relative),'utf8');
+ source=source.replace(/import \{ env \} from ['"]cloudflare:workers['"];?/, 'const env=globalThis.__publicEnv;');
+ source=source.replace(/import \{ getDb \} from ['"]@\/db['"];?/, 'const getDb=()=>globalThis.__publicDb;');
+ source=source.replace(/import \{ acquiredRuns \} from ['"]@\/db\/schema['"];?/, 'const acquiredRuns=globalThis.__publicRuns;');
+ source=source.replace(/import \{ Actions as CoreActions, SitesIntentActions \} from ['"]@\/lib\/acquired\/upstream-actions['"];?/, 'const CoreActions=globalThis.__publicActions;const SitesIntentActions=globalThis.__publicIntent;');
+ source=source.replace(/from (['"])(\.[^'"]+|@\/[^'"]+)\1/g,(_,quote,p)=>{const abs=p.startsWith('@/')?path.join(root,p.slice(2)):path.resolve(root,path.dirname(relative),p);return 'from '+JSON.stringify(pathToFileURL(abs+(path.extname(abs)?'':'.ts')).href);});
+ const filename=path.join(dir,relative.replaceAll('/','-')+'.mjs');
+ await writeFile(filename,ts.transpileModule(source+'\n'+extra,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText);
+ return import(pathToFileURL(filename).href);
+}
+const realFetch=globalThis.fetch;let external=0;
+globalThis.fetch=async()=>{external++;return Response.json({results:[]})};
+try{
+ const core=await compile('lib/acquired/upstream-actions.ts','export const testIntent={parseConstraints,parseMotivationSignals};');
+ globalThis.__publicActions=core.Actions;globalThis.__publicIntent=core.SitesIntentActions;
+ const {Actions,testIntent}=core;
+ const alice={db:()=>db,invalidateQueries(){},ownerId:'alice'},bob={...alice,ownerId:'bob'},owner={...alice,ownerId:'owner',isOwner:true};
+ const route=(id,title)=>JSON.stringify({schema:'acquired-route/2',route_id:id,meta:{title,destination:'Destination'},steps:[{name:'Destination',tracks:[]}]});
+ sql.prepare('INSERT INTO routes(route_id,title,destination,data,created_at) VALUES(?,?,?,?,0)').run('legacy','Legacy private route','Destination',route('legacy','Legacy private route'));
+ const legacyWalk=JSON.stringify({routeId:'legacy',routeTitle:'Legacy private route'});
+ sql.prepare('INSERT INTO sessions(data,created_at,updated_at) VALUES(?,0,0)').run(legacyWalk);
+ await Actions.importRoute.handler(alice,{data:route('alice-route','Alice route')});await Actions.importRoute.handler(bob,{data:route('bob-route','Bob route')});
+ check((await Actions.listRoutes.handler(alice,{})).routes.map(x=>x.route_id).join()==='alice-route','Alice list scoped');
+ check((await Actions.listRoutes.handler(bob,{})).routes.map(x=>x.route_id).join()==='bob-route','Bob list scoped');
+ check((await Actions.listRoutes.handler(owner,{})).routes.map(x=>x.route_id).join()==='legacy','Owner retains legacy only');
+ check((await Actions.getRoute.handler(bob,{route_id:'alice-route'})).route===null,'Guessed foreign route rejected');
+ check((await Actions.getRoute.handler(bob,{route_id:'legacy'})).route===null,'Legacy route hidden');
+ await Actions.importRoute.handler(bob,{data:route('alice-route','Malicious overwrite')});
+ check((await Actions.getRoute.handler(alice,{route_id:'alice-route'})).route.data===route('alice-route','Alice route'),'Cross-owner upsert cannot overwrite');
+ await Actions.deleteRoute.handler(bob,{route_id:'alice-route'});
+ check((await Actions.getRoute.handler(alice,{route_id:'alice-route'})).route!==null,'Cross-owner delete rejected');
+ const state=JSON.stringify({routeId:'alice-route',routeTitle:'Alice route'});
+ const {id}=await Actions.createSession.handler(alice,{data:state});
+ check((await Actions.getSession.handler(bob,{id})).session===null,'Foreign session read rejected');
+ const denied=await Actions.saveSession.handler(bob,{id,data:'{"foreign":true}',finished:true,expected_data:state});
+ check(!denied.ok&&!denied.current_data,'Foreign CAS reveals no data and cannot write');
+ check((await Actions.getSession.handler(alice,{id})).session.data===state,'Foreign write leaves bytes intact');
+ check((await Actions.listSessions.handler(bob,{limit:50})).sessions.length===0,'Foreign sessions absent from history');
+ const own=await Actions.getSession.handler(alice,{id});check(own.session.route_data===route('alice-route','Alice route'),'Owned exact route restored');
+ const foreignFallback=await Actions.createSession.handler(bob,{data:JSON.stringify({routeId:'alice-route'})});
+ check((await Actions.getSession.handler(bob,{id:foreignFallback.id})).session.route_data===null,'Foreign exact route fallback denied');
+ check((await Actions.getSession.handler(owner,{id:1})).session.data===legacyWalk,'Owner legacy session unchanged');
+ const next=JSON.stringify({routeId:'alice-route',finished:true});
+ check((await Actions.saveSession.handler(alice,{id,data:next,finished:true,expected_data:state})).ok,'Own CAS save succeeds');
+ check((await Actions.saveSession.handler(alice,{id,data:'{}',finished:false,expected_data:state})).error_code==='session_conflict','Own stale CAS rejected');
+ const old=session=>Actions.swapStepMeasured.handler(session,{session_id:id,step_index:0,alternate_entity_id:'00000000-0000-4000-8000-000000000099'});
+ check(!(await old(bob)).ok&&external===0,'Foreign measured swap stops before external fetch');
+ check(visitorFromHeaders(new Headers(), 'owner@example.test')===null,'Anonymous identity absent');
+ check(visitorFromHeaders(new Headers({'OAI-Sites-Authorization':'Bearer arbitrary'}))===null,'Service token is not visitor identity');
+ const identity=visitorFromHeaders(new Headers({'oai-authenticated-user-id':'alice','oai-authenticated-user-email':'alice@example.test'}),'owner@example.test');
+ check(identity.userId==='alice'&&!identity.isOwner,'Dispatch visitor identity scoped');
+ check(!sameOrigin(new Request('https://site.test/api/acquired',{headers:{origin:'https://evil.test'}})),'Cross-origin rejected');
+ await assert.rejects(limitedJson(new Request('https://site.test',{method:'POST',body:'x'.repeat(500)}),100),/INPUT_TOO_LARGE/);checks++;
+ globalThis.__publicRuns=(await compile('db/schema.ts')).acquiredRuns;
+ const boundary=await compile('app/api/acquired/route.ts');
+ let response=await boundary.POST(new Request('https://site.test/api/acquired',{method:'POST',body:JSON.stringify({action:'listRoutes'})}));check(response.status===401,'Anonymous HTTP denied before DB reads');
+ response=await boundary.GET();check(response.status===404,'Global run diagnostics retired');
+ const request=(action,args,user='alice')=>new Request('https://site.test/api/acquired',{method:'POST',headers:{'Content-Type':'application/json','oai-authenticated-user-id':user,'oai-authenticated-user-email':user+'@example.test'},body:JSON.stringify({action,args})});
+ response=await boundary.POST(request('listRoutes',{},'alice'));check((await response.json()).result.routes.length===1,'HTTP identity reaches core scope');
+ response=await boundary.POST(request('getSession',{id},'bob'));check((await response.json()).result.session===null,'HTTP foreign session hidden');
+ response=await boundary.POST(request('saveSession',{id,data:'{}',finished:false},'alice'));check(response.status===400,'HTTP requires CAS');
+ const viewer=await compile('app/api/viewer/route.ts');
+ const bootstrap=()=>viewer.POST(new Request('https://site.test/api/viewer',{method:'POST',headers:{'Content-Type':'application/json',origin:'https://site.test'},body:'{}'}));
+ const va=await bootstrap(),vb=await bootstrap();
+ const cookieA=va.headers.get('set-cookie').split(';')[0],cookieB=vb.headers.get('set-cookie').split(';')[0];
+ const identityA=await va.json(),identityB=await vb.json();
+ check(identityA.visitorReady&&!identityA.authenticated&&identityA.guest&&!identityA.isOwner,'Guest starts without an account');
+ check(cookieA!==cookieB&&identityA.userId!==identityB.userId,'Independent guest identities');
+ check(va.headers.get('set-cookie').includes('HttpOnly')&&va.headers.get('set-cookie').includes('Secure')&&va.headers.get('set-cookie').includes('SameSite=Lax'),'Guest credential has secure cookie protections');
+ const settings={guestSecret:globalThis.__publicEnv.ACQUIRED_GUEST_SECRET,ownerEmail:'owner@example.test'};
+ const cookieRequest=cookie=>new Request('https://site.test/api/viewer',{headers:{cookie}});
+ check((await visitorForRequest(cookieRequest(cookieA),settings)).userId===identityA.userId,'Visitor identity survives reload');
+ check(await visitorForRequest(cookieRequest(cookieA.slice(0,-1)+(cookieA.endsWith('a')?'b':'a')),settings)===null,'Forged signature rejected');
+ check(await visitorForRequest(cookieRequest(GUEST_COOKIE+'=guest:owner'),settings)===null,'Unsigned identity rejected');
+ check(await visitorForRequest(cookieRequest(cookieA+'; '+cookieA),settings)===null,'Ambiguous duplicate credentials rejected');
+ const expired=await guestToken(settings.guestSecret,Date.now()-31*86400000);
+ check(await visitorForRequest(cookieRequest(GUEST_COOKIE+'='+expired.token),settings)===null,'Expired guest token rejected');
+ const denial=await viewer.POST(new Request('https://site.test/api/viewer',{method:'POST',headers:{'Content-Type':'application/json',origin:'https://evil.test'},body:'{}'}));
+ check(denial.status===403,'Cross-origin guest bootstrap rejected');
+ const guestRequest=(cookie,action,args={})=>new Request('https://site.test/api/acquired',{method:'POST',headers:{cookie,'Content-Type':'application/json',origin:'https://site.test'},body:JSON.stringify({action,args})});
+ const guestData=JSON.stringify({routeTitle:'Synthetic guest verification',finished:false});
+ const createdGuest=await boundary.POST(guestRequest(cookieA,'createSession',{data:guestData}));
+ const guestId=(await createdGuest.json()).result.id;
+ check(Number.isInteger(guestId),'Guest can save without account');
+ const foreignGuest=await boundary.POST(guestRequest(cookieB,'getSession',{id:guestId}));
+ check((await foreignGuest.json()).result.session===null,'Independent guest cannot read another guest record');
+ const overwritten=await boundary.POST(guestRequest(cookieB,'saveSession',{id:guestId,data:'{}',finished:false,expected_data:guestData}));
+ check((await overwritten.json()).result.error_code==='session_missing','Independent guest cannot CAS-overwrite another guest record');
+ const restoredGuest=await boundary.POST(guestRequest(cookieA,'getSession',{id:guestId}));
+ check((await restoredGuest.json()).result.session.data===guestData,'Guest owner reopens unchanged record');
+ const hiddenLegacy=await boundary.POST(guestRequest(cookieA,'listRoutes'));
+ check((await hiddenLegacy.json()).result.routes.length===0,'Guest never sees owner legacy routes');
+ const repeated=await viewer.POST(new Request('https://site.test/api/viewer',{method:'POST',headers:{cookie:cookieA,'Content-Type':'application/json'},body:'{}'}));
+ check((await repeated.json()).userId===identityA.userId&&!repeated.headers.has('set-cookie'),'Existing guest is never replaced during bootstrap');
+ const now=Date.UTC(2026,9,28,12),bucket=Math.floor(now/86400000);
+ for(let i=0;i<PUBLIC_LIMITS.qlooPerUserDay;i++)await reserveQloo(d1,'limited',now);
+ const before=sql.prepare('SELECT used FROM acquired_usage WHERE id=?').get('qloo:global:'+bucket).used;
+ await assert.rejects(reserveQloo(d1,'limited',now),PublicBudgetError);checks++;
+ check(sql.prepare('SELECT used FROM acquired_usage WHERE id=?').get('qloo:global:'+bucket).used===before,'Exhausted visitor cannot drain shared quota');
+ for(let i=0;i<PUBLIC_LIMITS.actionsPerUserMinute;i++)await reserveAction(d1,'burst',now);
+ await assert.rejects(reserveAction(d1,'burst',now),PublicBudgetError);checks++;
+ check(!Actions.createSession.request.safeParse({data:'中'.repeat(200000)}).success,'UTF-8 byte cap prevents oversized stored sessions');
+ for(let i=0;i<PUBLIC_LIMITS.sessionPerUserDay;i++)await reserveSession(d1,'many-sessions',now);
+ await assert.rejects(reserveSession(d1,'many-sessions',now),PublicBudgetError);checks++;
+ for(let i=0;i<PUBLIC_LIMITS.buildsPerUserBeta;i++)await reserveBuild(d1,'many-builds');
+ await assert.rejects(reserveBuild(d1,'many-builds'),PublicBudgetError);checks++;
+ sql.prepare("UPDATE acquired_usage SET used=? WHERE id='build:beta:global'").run(PUBLIC_LIMITS.buildsGlobalBeta-1);
+ const contenders=await Promise.allSettled(Array.from({length:5},(_,i)=>reserveBuild(d1,'racer'+i)));
+ check(contenders.filter(x=>x.status==='fulfilled').length===1,'Concurrent reservations cannot overshoot shared durable capacity');
+ check(PUBLIC_LIMITS.sessionsGlobalBeta*500000+PUBLIC_LIMITS.buildsGlobalBeta*500000<=100000000,'Stored records have a finite byte bound');
+ response=await boundary.POST(new Request('https://site.test/api/acquired',{method:'POST',headers:{origin:'https://evil.test','oai-authenticated-user-id':'alice','oai-authenticated-user-email':'alice@example.test'},body:JSON.stringify({action:'listRoutes'})}));
+ check(response.status===403,'HTTP cross-origin denied for authenticated identity');
+ const t=newTrace({minIntervalMs:0,cache:false});t.beforeQlooRequest=async()=>{throw new PublicBudgetError(now)};
+ await assert.rejects(traceStorage.run(t,()=>trackedFetch('https://hackathon.api.qloo.com/search?query=test')),PublicBudgetError);checks++;
+ check(external===0,'Quota rejection sends zero external requests');
+ check(englishAvoidance('I love horror but hate gore',/\bhorror\b/i)===null,'Positive horror mention not avoidance');
+ check(englishAvoidance("I don't want to avoid horror",/\bhorror\b/i)===null,'Refusal to avoid is not avoidance');
+ check(englishAvoidance("I am not afraid of horror, but I can't handle gore",/\bgore\b/i)==='gore','Independent English clauses');
+ const english=testIntent.parseConstraints('Avoid horror and gore. No books. Too long.','I prefer recent works');
+ for(const kind of ['avoid_horror','avoid_gore','avoid_book','unhandled_length','prefer_recent'])check(english.some(c=>c.kind===kind),'English condition '+kind);
+ const signals=testIntent.parseMotivationSignals('I love TIME TRAVEL and dragons',[]).signals;
+ check(signals.some(s=>s.id==='mot:tag:time-travel')&&signals.some(s=>s.id==='mot:tag:dragons'),'English concepts recognized');
+ check(!signals.some(s=>s.id==='mot:tag:love'),'Love verb is not romance topic');
+ check(!testIntent.parseMotivationSignals("I don't like time travel",[]).signals.some(s=>s.id==='mot:tag:time-travel'),'Negated English interest ignored');
+ check(testIntent.parseMotivationSignals('I am curious about the premise',[]).genericPending,'English generic premise prompts clarification');
+ console.log(JSON.stringify({passed:checks,failed:0,liveQlooRequests:external,coverage:'SQLite ownership, legacy preservation, CAS, HTTP auth/scoping, quota atomicity, English intent'}));
+}finally{globalThis.fetch=realFetch;sql.close();await rm(dir,{recursive:true,force:true});}
