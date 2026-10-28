@@ -2,13 +2,21 @@
 
 # Acquired
 
-A taste-guided cultural discovery agent that builds a gradual route from what you already love to something you want to understand.
+**A taste-guided cultural discovery agent that builds a gradual route from what you already love to something you want to understand.**
 
-[Live demo](https://acquired.nini-lab.chatgpt.site/)
-
-Built for the **Qloo Agentic Hackathon 2026**.
+<p>
+  <a href="https://acquired.nini-lab.chatgpt.site/"><img alt="Live demo" src="https://img.shields.io/badge/Live_demo-Open_Acquired-7D5BA6?style=flat-square"></a>
+  <img alt="Qloo Agentic Hackathon 2026" src="https://img.shields.io/badge/Qloo-Agentic_Hackathon_2026-7D5BA6?style=flat-square">
+  <a href="./LICENSE"><img alt="License: AGPL-3.0-only" src="https://img.shields.io/badge/License-AGPL--3.0--only-7D5BA6?style=flat-square"></a>
+</p>
 
 </div>
+
+<p align="center">
+  <img src="./assets/acquired-walk.png" alt="Acquired mobile walk interface showing a route stop, progress, three ratings, and the continue action" width="390">
+</p>
+
+<p align="center"><sub>Walk a measured route, rate each stop, and reroute when the path does not fit.</sub></p>
 
 ---
 
@@ -16,7 +24,7 @@ Built for the **Qloo Agentic Hackathon 2026**.
 
 Recommendations are good at giving you *more of what you already like*. They are less helpful when you want to cross a cultural gap: getting into a band, book, film, game, or other creative territory that feels interesting but still unfamiliar.
 
-Acquired treats discovery as navigation rather than a list or an open-ended wander. You name the destination first. The agent starts from familiar favorites, asks what blocked you before (**barrier**) and why you want to try now (**motivation**), then builds a measured route toward that specific destination.
+**Acquired is destination-first, barrier-aware, and adaptive.** You name where you want to go. The agent starts from familiar favorites, asks what blocked you before (**barrier**) and why you want to try now (**motivation**), then builds a measured route toward that specific destination.
 
 Gradual cultural routing has an early precedent in Paul Lamere's 2012 [Boil the Frog](https://musicmachinery.com/2012/02/26/boil-the-frog/), which connected artists through incremental musical similarity. Acquired takes the idea across media and adds personal anchors, explicit barriers and motivations, route constraints, and feedback-driven rerouting.
 
@@ -28,10 +36,6 @@ Gradual cultural routing has an early precedent in Paul Lamere's 2012 [Boil the 
 4. **Build a measured route** — Acquired resolves the exact entities and uses Qloo search and taste-graph measurements to construct and validate 3–10 stops.
 5. **Walk it** — sample each stop, rate familiarity / unfamiliarity / liking, swap a stop, or rebuild the remaining path when needed.
 6. **Keep the journey** — progress, ratings, replacements, and a final reflection can be saved and reopened.
-
-<p align="center">
-  <img src="./assets/acquired-walk.png" alt="Acquired mobile walk interface showing a route stop, progress, three ratings, and the continue action" width="390">
-</p>
 
 ## What Qloo does
 
@@ -66,12 +70,7 @@ The Qloo API key and guest-signing secret are server-side runtime secrets and ar
 
 ## Stack
 
-- TypeScript
-- React 19 / Next.js 16 / Vinext
-- ChatGPT Sites
-- Cloudflare D1 + Drizzle
-- Qloo API
-- pnpm
+`TypeScript` · `React 19` · `Next.js 16` · `Vinext` · `ChatGPT Sites` · `Cloudflare D1` · `Drizzle` · `Qloo API` · `pnpm`
 
 ## Repository guide
 
@@ -86,17 +85,10 @@ worker/                Sites / Cloudflare runtime entry
 
 ## Local development
 
-For the quickest evaluation, use the [live demo](https://acquired.nini-lab.chatgpt.site/) above.
-
-Install dependencies:
+> **Quickest evaluation:** use the [live demo](https://acquired.nini-lab.chatgpt.site/) above. A full local run needs the Sites runtime bindings and secrets used by the hosted app.
 
 ```bash
 pnpm install
-```
-
-Run the local Sites/Vite development environment:
-
-```bash
 pnpm dev
 ```
 
@@ -104,9 +96,7 @@ The hosted application expects runtime bindings and secrets such as `DB`, `QLOO_
 
 ## Selected checks
 
-The project includes regression coverage for route boundaries, destination / series rules, Qloo transport behavior, provider failures, session CAS, offline visitor-isolation tests, route-library counting, English intent parsing, and responsive UI behavior.
-
-Representative checks:
+Regression coverage includes route boundaries, destination / series rules, Qloo transport behavior, provider failures, session CAS, offline visitor-isolation tests, route-library counting, English intent parsing, and responsive UI behavior.
 
 ```bash
 node --experimental-strip-types scripts/test-public-release.mjs
