@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {acceptIntent,emptyIntent,intentArgs,setConflict,unresolvedConflicts} from '../lib/acquired/intent.ts';
+const preference={id:'prefer_recent',kind:'prefer_recent',source:'motivation',label:'较新',hard:false,excerpt:'想看新一点'};
+const signal={id:'mot:pref_recent',label:'较新',source:'text',status:'ready',tagId:null,excerpt:'想看新一点'};
+const horror={id:'avoid_horror',kind:'avoid_horror',source:'barrier',label:'避开恐怖',hard:true,excerpt:'怕恐怖',conflict:{status:'pending',evidence:'Horror'}};
+let i=acceptIntent({constraints:[preference,horror],motivationSignals:[signal]},'dest');
+assert.deepEqual(intentArgs(i).selectedMotivationIds,['mot:pref_recent']);
+i={...i,selectedMotivationIds:[]};assert.deepEqual(intentArgs(i).constraintIds,['avoid_horror']);
+assert.equal(unresolvedConflicts(i).length,1);i=setConflict(i,'avoid_horror',false);assert.equal(unresolvedConflicts(i).length,0);assert.deepEqual(intentArgs(i).disabledConflictIds,['avoid_horror']);
+i=setConflict(i,'avoid_horror',true);assert.deepEqual(i.disabledConflictIds,[]);assert.deepEqual(i.confirmedConflictIds,['avoid_horror']);
+i={...i,constraintIds:[],manualConstraints:[{entryId:'one',kind:'avoid_tag',tagId:'urn:tag:test:one',label:'one'},{entryId:'two',kind:'avoid_tag',tagId:'urn:tag:test:two',label:'two'}]};
+const reparsed=acceptIntent({constraints:[preference,horror],motivationSignals:[signal]},'dest',i);assert.equal(reparsed.constraintIds.length,0);assert.equal(reparsed.selectedMotivationIds.length,0);assert.equal(intentArgs(reparsed).manualConstraints.length,2);
+const moved=acceptIntent({constraints:[horror],motivationSignals:[]},'other',reparsed);assert.equal(moved.confirmedConflictIds.length,0);assert.equal(moved.disabledConflictIds.length,0);
+const pending=acceptIntent({constraints:[],motivationSignals:[{id:'mot:pending:generic',source:'pending_supplement',status:'pending',tagId:null,label:'补充',excerpt:'概念'}]},null);assert.equal(intentArgs(pending).selectedMotivationIds.length,0);
+assert.deepEqual(emptyIntent().manualConstraints,[]);
+console.log('Intent UI state checks passed: explicit empty motivation removes preference, conflicts need a decision, opposite choice cleared, reparse preserves deletions and both manual tags, new destination clears old decisions, pending placeholder never submitted. No live requests.');
