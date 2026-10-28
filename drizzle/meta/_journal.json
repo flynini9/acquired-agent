@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1792762089623,
+      "tag": "0000_omniscient_robin_chapel",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792762178131,
+      "tag": "0001_clean_white_tiger",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793121860645,
+      "tag": "0002_oval_thing",
+      "breakpoints": true
+    }
+  ]
+}
