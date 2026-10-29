@@ -1,6 +1,7 @@
 // Real SQLite + shipped Drizzle queries; two visitors and the legacy owner.
 // No real Qloo calls, production credentials or browser identity forgery.
 import assert from 'node:assert/strict';
+import {reflectionPersistenceCases} from './helpers/reflection-persistence-cases.mjs';
 import {DatabaseSync} from 'node:sqlite';
 import {drizzle} from 'drizzle-orm/sqlite-proxy';
 import {readFile,mkdtemp,writeFile,rm} from 'node:fs/promises';
@@ -78,6 +79,7 @@ try{
  const reopenedReflection=JSON.parse((await Actions.getSession.handler(alice,{id})).session.data);
  check(reopenedReflection.reflection==='A little more curious.'&&reopenedReflection.dest[0]['好感']===7,'Completed reflection and destination feedback survive reopening');
  check(reopenedReflection.finished===true,'Editing reflection never reopens the completed journey');
+ const reflectionResults=await reflectionPersistenceCases({Actions,ctx:alice,check});console.log(JSON.stringify({reflectionAutosave:reflectionResults}));
  check((await Actions.saveSession.handler(alice,{id,data:'{}',finished:false,expected_data:state})).error_code==='session_conflict','Own stale CAS rejected');
  const old=session=>Actions.swapStepMeasured.handler(session,{session_id:id,step_index:0,alternate_entity_id:'00000000-0000-4000-8000-000000000099'});
  check(!(await old(bob)).ok&&external===0,'Foreign measured swap stops before external fetch');

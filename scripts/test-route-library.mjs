@@ -24,6 +24,6 @@ equal(uniqueRouteCount(await readRouteLibrary(read)),1);
 equal(server.sessions[0].route_id,null); // read-only legacy identity resolution
 const page=readFileSync(new URL('../app/acquired/page.tsx',import.meta.url),'utf8');
 assert.ok(page.includes('uniqueRouteCount(routeLibrary)')&&page.includes('const {routes,sessions}=routeLibrary'));checks++;
-assert.ok(page.includes('revision!==libraryRevision.current')&&page.includes('if(saveStatus==="Saved"'));checks++;
+assert.ok(page.includes('revision!==libraryRevision.current')&&page.includes('acknowledgeSession(current,id,next)')&&!page.includes('if(saveStatus==="Saved"'));checks++;
 assert.ok(!page.includes('setRoutes(')&&!page.includes('setSessions('));checks++;
 console.log(`${checks} route-library assertions passed; no live calls.`);

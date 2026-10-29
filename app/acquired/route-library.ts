@@ -2,6 +2,14 @@ export type RouteLink={route_id:string;title:string;destination:string};
 export type SessionLink={id:number;route_id:string|null;route_title:string|null;finished:boolean;updated_at:string};
 export type RouteLibrary={routes:RouteLink[];sessions:SessionLink[]};
 
+// An acknowledged save already contains everything the list needs. Updating
+// its summary locally must not spend three more activity requests per save.
+export function acknowledgeSession(library:RouteLibrary|null,id:number,state:{routeId:string;routeTitle:string;finished:boolean},updatedAt=new Date().toISOString()):RouteLibrary|null{
+ if(!library)return null;
+ const summary={id,route_id:state.routeId,route_title:state.routeTitle,finished:state.finished,updated_at:updatedAt};
+ return {...library,sessions:[summary,...library.sessions.filter(s=>s.id!==id)].sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at))};
+}
+
 // A session is another view of its route, not another route. Titles are never
 // identities: different routes may have the same title.
 export function uniqueRouteCount(library:RouteLibrary):number{

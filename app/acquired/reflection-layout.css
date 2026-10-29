@@ -1,5 +1,6 @@
 /* Completion only: let the route lead, with optional reflections alongside. */
 .reflection-overview,.reflection-tools{min-width:0}
+.is-reflection .station-nav{max-width:100%;overflow-x:auto}
 .is-reflection .footprints li{align-items:center}
 .is-reflection .footprints li>div{min-width:0;flex:1}
 .is-reflection .footprints strong{overflow-wrap:anywhere}

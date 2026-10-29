@@ -1,8 +1,8 @@
-type Props={value:string;disabled:boolean;onChange:(value:string)=>void};
+type Props={value:string;disabled:boolean;onChange:(value:string)=>void;onBlur:()=>void};
 
 // Completion locks the route, not the visitor's reflections on it.
-export function ReflectionEditor({value,disabled,onChange}:Props){
+export function ReflectionEditor({value,disabled,onChange,onBlur}:Props){
  return <label className="reflection">How do your reasons feel now?
-  <textarea disabled={disabled} value={value} placeholder="Optional. A little more curious? Has anything that held you back eased?" onChange={event=>onChange(event.target.value)}/>
+  <textarea disabled={disabled} value={value} placeholder="Optional. A little more curious? Has anything that held you back eased?" onChange={event=>onChange(event.target.value)} onBlur={onBlur}/>
  </label>;
 }
