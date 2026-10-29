@@ -1,0 +1,52 @@
+/* Completion only: let the route lead, with optional reflections alongside. */
+.reflection-overview,.reflection-tools{min-width:0}
+.is-reflection .footprints li{align-items:center}
+.is-reflection .footprints li>div{min-width:0;flex:1}
+.is-reflection .footprints strong{overflow-wrap:anywhere}
+.is-reflection .footprints .footprint-status{flex-shrink:0;margin:0;color:var(--accent);white-space:nowrap}
+.is-reflection .reflection-tools .reflection,.is-reflection .reflection-tools .after-taste{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0}
+.is-reflection .reflection-tools{display:grid;gap:16px;align-content:start}
+.is-reflection .reflection-tools .reflection{font-size:14px;line-height:1.6}
+.is-reflection .reflection textarea{min-height:112px;margin-top:10px;padding:10px 12px;font-size:14px;line-height:1.6}
+.is-reflection .after-taste-heading{font:400 22px/1.3 Georgia,serif;color:var(--ink);margin:0 0 6px}
+.is-reflection .after-taste>.muted{margin:0 0 8px}
+.is-reflection .after-taste .taste-item{padding:8px 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+.is-reflection .after-taste .play-link{overflow-wrap:anywhere;font-size:13px;line-height:1.6}
+.is-reflection .after-taste .link-wrap{gap:3px}
+.is-reflection .reflection-actions{margin:16px 0}
+@media(min-width:769px){
+ .acquired-shell:has(.is-reflection){padding-top:16px}
+ .acquired-shell:has(.is-reflection) .acquired-header{padding:0 0 14px}
+ .acquired-shell:has(.is-reflection) .wordmark{font-size:30px;line-height:1}
+ .acquired-shell:has(.is-reflection) .wordmark span{font-size:9px;padding-top:6px}
+ .walk-view.is-reflection{max-width:none;padding:10px 0 12px}
+ .reflection-columns{display:grid;grid-template-columns:minmax(0,1.78fr) minmax(0,1fr);gap:32px;align-items:start}
+ .is-reflection .walk-top{min-height:44px;padding:0;margin-bottom:8px}
+ .is-reflection .station-nav{margin:0 0 12px;padding:4px 4px 6px;overflow-x:auto}
+ .is-reflection .station-nav:before{top:22px}
+ .is-reflection .station-nav button{gap:4px;min-width:44px;flex-shrink:0}
+ .is-reflection .station-nav button span{width:36px;height:36px;font-size:13px}
+ .is-reflection .arrival-mark{font-size:34px;line-height:1;margin:6px 0 8px}
+ .is-reflection .reflection-overview>.eyebrow{margin:6px 0}
+ .acquired-shell .reflection-overview>h1{font-size:clamp(38px,3.6vw,50px);line-height:1.12;letter-spacing:-1px;margin:8px 0;overflow-wrap:anywhere}
+ .reflection-overview>.lead{max-width:none;font-size:14px;line-height:1.6;margin:10px 0 14px}
+ .is-reflection .narrative-echo:empty{display:none}
+ .is-reflection .narrative-echo p{font-size:13px;margin:8px 0}
+ .is-reflection .footprints{margin:12px 0 16px}
+ .is-reflection .footprints li{padding:6px 0;gap:14px}
+ .is-reflection .footprints strong{font-size:20px;line-height:1.3}
+ .is-reflection .footprints small{margin-top:2px;line-height:1.5}
+ .is-reflection .reflection-actions .primary{min-height:52px;padding:12px 24px}
+ .is-reflection .constraint-recap{margin:12px 0}
+ .acquired-shell:has(.is-reflection) .acquired-footer{margin:0;padding:12px 0 14px;align-items:start}
+ .acquired-shell:has(.is-reflection) .acquired-footer>details{margin:0;padding:0;border:0}
+ .acquired-shell:has(.is-reflection) .acquired-footer>.text-button{padding:0}
+}
+@media(max-width:768px){
+ .is-reflection .reflection-tools{margin-top:24px}
+ .is-reflection .reflection-tools .reflection,.is-reflection .reflection-tools .after-taste{padding:16px}
+ .is-reflection .reflection textarea{font-size:16px}
+ .is-reflection .footprints li{gap:12px}
+ .is-reflection .footprints .footprint-status{font-size:11px}
+ .is-reflection .reflection-actions>.primary{max-width:100%}
+}

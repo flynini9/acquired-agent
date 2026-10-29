@@ -73,6 +73,11 @@ try{
  check((await Actions.getSession.handler(owner,{id:1})).session.data===legacyWalk,'Owner legacy session unchanged');
  const next=JSON.stringify({routeId:'alice-route',finished:true});
  check((await Actions.saveSession.handler(alice,{id,data:next,finished:true,expected_data:state})).ok,'Own CAS save succeeds');
+ const reflected=JSON.stringify({routeId:'alice-route',finished:true,reflection:'A little more curious.',dest:[{'好感':7}]});
+ check((await Actions.saveSession.handler(alice,{id,data:reflected,finished:true,expected_data:next})).ok,'Completed journey accepts reflection and optional destination feedback');
+ const reopenedReflection=JSON.parse((await Actions.getSession.handler(alice,{id})).session.data);
+ check(reopenedReflection.reflection==='A little more curious.'&&reopenedReflection.dest[0]['好感']===7,'Completed reflection and destination feedback survive reopening');
+ check(reopenedReflection.finished===true,'Editing reflection never reopens the completed journey');
  check((await Actions.saveSession.handler(alice,{id,data:'{}',finished:false,expected_data:state})).error_code==='session_conflict','Own stale CAS rejected');
  const old=session=>Actions.swapStepMeasured.handler(session,{session_id:id,step_index:0,alternate_entity_id:'00000000-0000-4000-8000-000000000099'});
  check(!(await old(bob)).ok&&external===0,'Foreign measured swap stops before external fetch');
