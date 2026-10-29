@@ -108,6 +108,8 @@ The checks above run locally with fixtures or mocked provider responses and do n
 
 ## License
 
+Copyright (C) 2026 flynini9.
+
 Except where otherwise noted, Acquired is licensed under the **GNU Affero General Public License v3.0 only (AGPL-3.0-only)**. See [LICENSE](./LICENSE) for the full terms. Third-party components retain their respective licenses.
 
 If you modify Acquired and make the modified version available to users over a network, the AGPL requires you to offer those users the corresponding source code under the same license.
