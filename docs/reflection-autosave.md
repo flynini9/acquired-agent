@@ -29,17 +29,28 @@ storage to recover guest progress; use Retry saving after an unsynced recovery.
 
 ## Repeatable checks
 
-From the repository root, with dependencies installed:
+From the repository root, with dependencies installed and Node >=22.13:
+The explicit type-stripping flag is needed on Node 22.16 and also works on
+the current managed runtime (Node 24.22.1). Without it, older Node 22 releases
+cannot directly load the `.ts` modules imported by these tests. The commands
+below were executed on Node 24.22.1; Node 22.16 is not installed in that
+environment and was not separately verified.
 
 ```sh
-node scripts/test-reflection-autosave.mjs
-node scripts/test-reflection-editor.mjs
-node scripts/test-route-library.mjs
-node scripts/test-public-release.mjs
-node scripts/test-acquired-walk.mjs
+node --experimental-strip-types scripts/test-reflection-autosave.mjs
+node --experimental-strip-types scripts/test-reflection-editor.mjs
+node --experimental-strip-types scripts/test-route-library.mjs
+node --experimental-strip-types scripts/test-public-release.mjs
+node --experimental-strip-types scripts/test-acquired-walk.mjs
 node node_modules/typescript/bin/tsc --noEmit
 npm run build
 ```
+
+`build` is the existing package.json script. The current project does not
+define npm test scripts for the five checks above. The debounce script counts
+15 executed assertions through its `eq` helper; the printed count is not a
+count of test cases or source lines. No extra assertions are needed to make
+that total match an earlier report.
 
 The debounce tests use a deterministic clock. The public-release suite also
 executes the shipped page's actual edit/draft/save functions against real
